@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Amino Acid Frequencies</title>
+  <!-- Include Plotly.js library -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    /* General Body Styling */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #1a1a1a;
+      margin: 0;
+      padding: 20px;
+      color: #e0e0e0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    /* Main Heading Styling */
+    h1 {
+      text-align: center;
+      color: #e0e0e0;
+    }
+
+    /* Wrapper for Centering the Form and Chart */
+    .wrapper {
+      display: flex;
+      max-width: 1200px;
+      width: 100%;
+      align-items: flex-start;
+    }
+
+    /* Form Container Styling */
+    .container {
+      max-width: 400px;
+      width: 100%;
+      padding: 20px;
+      background-color: #2c2c2c;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
+      margin-right: 20px;
+    }
+
+    /* Form Group Styling */
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    /* Form Label Styling */
+    .form-group label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #e0e0e0;
+    }
+
+    /* Form Input and Select Styling */
+    .form-group input[type="number"],
+    .form-group input[type="text"],
+    .form-group input[type="file"],
+    .form-group select {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      border: 1px solid #555;
+      border-radius: 4px;
+      background-color: #333;
+      color: #e0e0e0;
+    }
+
+    /* Button Styling */
+    button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background-color: #5a5a5a;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: black;
+    }
+
+    /* Chart Placeholder Styling */
+    #myChart {
+      flex-grow: 1;
+      background-color: #2c2c2c;
+      border: 2px dashed #555;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #555;
+      font-size: 18px;
+      position: relative;
+      /* Make the chart a positioned element for resizing */
+    }
+
+    #myChart.plot-generated {
+      border: none;
+      background-color: transparent;
+    }
+
+    /* Resize Handle */
+    #resizeHandle {
+      width: 16px;
+      height: 16px;
+      background: #555;
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      cursor: se-resize;
+      border-radius: 4px;
+    }
+
+    /* Average Display Styling */
+    #averageDisplay {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #e0e0e0;
+      text-align: center;
+    }
+
+    /* Highlight Regions Container */
+    .highlight-regions {
+      margin-top: 10px;
+    }
+
+    .highlight-regions .form-group {
+      margin-bottom: 5px;
+    }
+
+    .highlight-regions .region-inputs {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .highlight-regions button {
+      background-color: #555;
+    }
+
+    .highlight-regions button:hover {
+      background-color: #000000;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrapper">
+    <div class="container">
+      <h1>Amino Acid Frequencies</h1>
+      <div class="form-group">
+        <label for="graphWidth">Graph Width:</label>
+        <input type="number" id="graphWidth" value="600">
+      </div>
+      <div class="form-group">
+        <label for="graphHeight">Graph Height:</label>
+        <input type="number" id="graphHeight" value="400">
+      </div>
+      <div class="form-group">
+        <label for="aminoAcids">Amino Acids (Comma-separated):</label>
+        <input type="text" id="aminoAcids" value="MNGTEGPNFYVPFSNATGVVRSPFEYPQYYLAEPWQFSMLAAYMFLLIVLGFPINFLTLY
+        VTVQHKKLRTPLNYILLNLAVADLFMVLGGFTSTLYTSLHGYFVFGPTGCNLEGFFATLG
+        GEIALWSLVVLAIERYVVVCKPMSNFRFGENHAIMGVAFTWVMALACAAPPLAGWSRYIP
+        EGLQCSCGIDYYTLKPEVNNESFVIYMFVVHFTIPMIIIFFCYGQLVFTVKEAAAQQQES
+        ATTQKAEKEVTRMVIIMVIAFLICWVPYASVAFYIFTHQGSNFGPIFMTIPAFFAKSAAI
+        YNPVIYIMMNKQFRNCMLTTICCGKNPLGDDEASATVSKTETSQVAPA">
+      </div>
+      <div class="form-group">
+        <label for="windowSize">Window Size (Odd Number):</label>
+        <input type="number" id="windowSize" value="7">
+      </div>
+      <div class="form-group">
+        <label for="XAxisType">X-Axis Type:</label>
+        <select id="XAxisType">
+          <option value="positions">Positions</option>
+          <option value="arbitrary">Arbitrary Labels</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="arbitraryLabels">Arbitrary Labels (Comma-separated):</label>
+        <input type="text" id="arbitraryLabels"
+          value="Label1,Label2,Label3,Label4,Label5,Label6,Label7,Label8,Label9,Label10,Label11,Label12,Label13,Label14,Label15,Label16,Label17,Label18,Label19,Label20,Label21,Label22,Label23,Label24,Label25,Label26,Label27,Label28,Label29,Label30,Label31,Label32,Label33,Label34,Label35,Label36,Label37,Label38,Label39,Label40,Label41,Label42,Label43,Label44,Label45,Label46,Label47,Label48,Label49,Label50,Label51,Label52,Label53,Label54,Label55,Label56,Label57,Label58,Label59,Label60,Label61,Label62,Label63,Label64,Label65,Label66,Label67,Label68,Label69,Label70,Label71,Label72,Label73,Label74,Label75,Label76,Label77,Label78,Label79,Label80,Label81,Label82,Label83,Label84,Label85,Label86,Label87,Label88,Label89,Label90,Label91,Label92,Label93,Label94,Label95,Label96,Label97,Label98,Label99,Label100,Label101,Label102,Label103,Label104,Label105,Label106,Label107,Label108,Label109,Label110,Label111,Label112,Label113,Label114,Label115,Label116,Label117,Label118,Label119,Label120,Label121,Label122,Label123,Label124,Label125,Label126,Label127,Label128,Label129,Label130,Label131,Label132,Label133,Label134,Label135,Label136,Label137,Label138,Label139,Label140,Label141,Label142,Label143,Label144,Label145,Label146,Label147,Label148,Label149,Label150,Label151,Label152,Label153,Label154,Label155,Label156,Label157,Label158,Label159,Label160,Label161,Label162,Label163,Label164,Label165,Label166,Label167,Label168,Label169,Label170,Label171,Label172,Label173,Label174,Label175,Label176,Label177,Label178,Label179,Label180,Label181,Label182,Label183,Label184,Label185,Label186,Label187,Label188,Label189,Label190,Label191,Label192,Label193,Label194,Label195,Label196,Label197,Label198,Label199,Label200,Label201,Label202,Label203,Label204,Label205,Label206,Label207,Label208,Label209,Label210,Label211,Label212,Label213,Label214,Label215,Label216,Label217,Label218,Label219,Label220,Label221,Label222,Label223,Label224,Label225,Label226,Label227,Label228,Label229,Label230,Label231,Label232,Label233,Label234,Label235,Label236,Label237,Label238,Label239,Label240,Label241,Label242,Label243,Label244,Label245,Label246,Label247,Label248,Label249,Label250,Label251,Label252,Label253,Label254,Label255,Label256,Label257,Label258,Label259,Label260,Label261,Label262,Label263,Label264,Label265,Label266,Label267,Label268,Label269,Label270,Label271,Label272,Label273,Label274,Label275,Label276,Label277,Label278,Label279,Label280,Label281,Label282,Label283,Label284,Label285,Label286,Label287,Label288,Label289,Label290,Label291,Label292,Label293,Label294,Label295,Label296,Label297,Label298,Label299,Label300,Label301,Label302,Label303,Label304,Label305,Label306,Label307,Label308,Label309,Label310,Label311,Label312,Label313,Label314,Label315,Label316,Label317,Label318,Label319,Label320,Label321,Label322,Label323,Label324,Label325,Label326,Label327,Label328,Label329,Label330,Label331,Label332,Label333,Label334,Label335,Label336,Label337,Label338,Label339,Label340,Label341,Label342,Label343,Label344,Label345,Label346,Label347,Label348">
+      </div>
+      <div class="form-group">
+        <label for="YAxisScale">Y-Axis Scale:</label>
+        <input type="range" id="YAxisScale" min="1" max="6" value="3">
+      </div>
+
+      <!-- Highlight Regions Section -->
+      <div class="highlight-regions">
+        <h2>Highlight Regions</h2>
+        <div id="regionsContainer"></div>
+        <button type="button" onclick="addHighlightRegion()">Add Highlight Region</button>
+      </div>
+
+      <div class="form-group">
+        <h2>Select Dictionary</h2>
+        <input type="file" id="aminoAcidFile" accept=".json">
+      </div>
+      <button onclick="generatePlot()">Generate Plot</button>
+    </div>
+    <div id="myChart">
+      Graph will be displayed here
+      <div id="resizeHandle"></div> <!-- Add the resize handle -->
+    </div>
+  </div>
+  <div id="averageDisplay"></div>
+
+  <!-- JavaScript Code -->
+  <script>
+    var layout = {
+      title: 'Amino Acid Frequencies',
+      paper_bgcolor: '#1a1a1a',
+      plot_bgcolor: '#1a1a1a',
+      font: {
+        color: '#e0e0e0'
+      },
+      xaxis: {
+        title: 'Amino Acid',
+        showticklabels: true,
+        tickangle: -45,
+        gridcolor: '#444',
+        zerolinecolor: '#444',
+        rangeslider: {
+          visible: true
+        }
+      },
+      yaxis: {
+        title: 'Frequency',
+        gridcolor: '#444',
+        zerolinecolor: '#444'
+      },
+      shapes: [],
+      dragmode: 'pan'
+    };
+
+    var myPlot;
+    var trace;
+    var aminoAcidDict = {};
+
+    function handleAminoAcidFile(event) {
+      var file = event.target.files[0];
+      var reader = new FileReader();
+
+      reader.onload = function (e) {
+        var fileContents = e.target.result;
+        aminoAcidDict = JSON.parse(fileContents);
+      };
+
+      reader.readAsText(file);
+    }
+
+    document.getElementById('aminoAcidFile').addEventListener('change', handleAminoAcidFile);
+
+    function slidingWindowSmoothing(sequence, values, windowSize) {
+      if (windowSize % 2 === 0) {
+        throw new Error("Window size must be an odd number");
+      }
+
+      const k = Math.floor((windowSize - 1) / 2);
+      const smoothedValues = [];
+
+      // Handling the first k values
+      for (let i = 0; i < k; i++) {
+        const windowValues = values.slice(0, i + k + 1);
+        const avg = windowValues.reduce((a, b) => a + b, 0) / windowValues.length;
+        smoothedValues.push(avg);
+      }
+
+      // Handling the main body of the sequence
+      for (let i = k; i < values.length - k; i++) {
+        const windowValues = values.slice(i - k, i + k + 1);
+        const avg = windowValues.reduce((a, b) => a + b, 0) / windowValues.length;
+        smoothedValues.push(avg);
+      }
+
+      // Handling the last k values
+      for (let i = values.length - k; i < values.length; i++) {
+        const windowValues = values.slice(i - k);
+        const avg = windowValues.reduce((a, b) => a + b, 0) / windowValues.length;
+        smoothedValues.push(avg);
+      }
+
+      return smoothedValues;
+    }
+
+    function addHighlightRegion() {
+      const container = document.getElementById('regionsContainer');
+
+      const regionHTML = `
+        <div class="form-group">
+          <label for="highlightRegionStart">Region Start:</label>
+          <input type="number" id="highlightRegionStart" min="1">
+        </div>
+        <div class="form-group">
+          <label for="highlightRegionEnd">Region End:</label>
+          <input type="number" id="highlightRegionEnd" min="1">
+        </div>
+      `;
+
+      container.insertAdjacentHTML('beforeend', regionHTML);
+    }
+
+    function generatePlot() {
+  var graphWidth = document.getElementById('graphWidth').value;
+  var graphHeight = document.getElementById('graphHeight').value;
+  var aminoAcidsStr = document.getElementById('aminoAcids').value;
+  var windowSize = parseInt(document.getElementById('windowSize').value);
+  var yScale = parseInt(document.getElementById('YAxisScale').value);
+  var xAxisType = document.getElementById('XAxisType').value;
+  var arbitraryLabelsStr = document.getElementById('arbitraryLabels').value;
+
+  // Read all highlight regions
+  var highlightRegions = [];
+  var regionElements = document.querySelectorAll('#regionsContainer .form-group');
+  for (let i = 0; i < regionElements.length; i += 2) {
+    const start = parseInt(document.getElementById(regionElements[i].querySelector('input').id).value);
+    const end = parseInt(document.getElementById(regionElements[i + 1].querySelector('input').id).value);
+    if (!isNaN(start) && !isNaN(end) && start < end) {
+      highlightRegions.push({ start, end });
+    }
+  }
+
+  if (windowSize % 2 === 0) {
+    alert("Window size must be an odd number.");
+    return;
+  }
+
+  var aminoAcids = aminoAcidsStr.match(/[A-Za-z]/g);
+  var yValues = aminoAcids.map(a => {
+    return aminoAcidDict[a] !== undefined ? aminoAcidDict[a] : 0;
+  });
+
+  var smoothedValues = slidingWindowSmoothing(aminoAcidsStr, yValues, windowSize);
+
+  var xValues;
+  switch (xAxisType) {
+    case 'positions':
+      xValues = aminoAcids.map((_, index) => index + 1);
+      break;
+    case 'arbitrary':
+      var arbitraryLabels = arbitraryLabelsStr.split(',').map(label => label.trim());
+      if (arbitraryLabels.length !== aminoAcids.length) {
+        alert("The number of arbitrary labels must match the number of amino acids.");
+        return;
+      }
+      xValues = arbitraryLabels;
+      break;
+    default:
+      xValues = aminoAcids.map((_, index) => index + 1);
+  }
+
+  trace = {
+    x: xValues,
+    y: yValues,
+    mode: 'lines',
+    type: 'scatter',
+    name: 'Original Values',
+    marker: { size: 5 }
+  };
+
+  var smoothedTrace = {
+    x: xValues,
+    y: smoothedValues,
+    mode: 'lines',
+    type: 'scatter',
+    name: 'Smoothed Values',
+    marker: { size: 5 }
+  };
+
+  // Update the highlight region shapes
+  layout.shapes = highlightRegions.map(region => ({
+    type: 'rect',
+    xref: 'x',
+    yref: 'paper',
+    x0: xValues[region.start - 1],  // Adjust for 0-based index
+    y0: 0,
+    x1: xValues[region.end - 1],    // Adjust for 0-based index
+    y1: 1,
+    fillcolor: '#d3d3d3',
+    opacity: 0.2,
+    line: {
+      width: 0
+    }
+  }));
+
+  layout.yaxis.range = [yScale * -1, yScale];
+  layout.width = graphWidth;
+  layout.height = graphHeight;
+
+  myPlot = document.getElementById('myChart');
+  Plotly.newPlot(myPlot, [trace, smoothedTrace], layout).then(() => {
+    // Attach the hover and click event handlers after the plot is created
+    myPlot.on('plotly_hover', function (data) {
+      var d = data.points[0];
+      var aminoAcidIndex = d.x;
+      var window = aminoAcids.slice(Math.max(0, aminoAcidIndex - Math.floor(windowSize / 2)), Math.min(aminoAcids.length, aminoAcidIndex + Math.floor(windowSize / 2) + 1));
+      var infotext = 'Amino Acid: ' + aminoAcids[aminoAcidIndex] + '<br>Amino Acid Number: ' + (aminoAcidIndex) + '<br>Window: ' + window.join('');
+      document.getElementById('averageDisplay').innerHTML = infotext;
+    });
+
+    myPlot.on('plotly_click', function (data) {
+      var d = data.points[0];
+      var aminoAcidIndex = d.x;
+      var window = aminoAcids.slice(Math.max(0, aminoAcidIndex - Math.floor(windowSize / 2)), Math.min(aminoAcids.length, aminoAcidIndex + Math.floor(windowSize / 2) + 1));
+      var infotext = 'Amino Acid: ' + aminoAcids[aminoAcidIndex] + '<br>Amino Acid Number: ' + (aminoAcidIndex) + '<br>Window: ' + window.join('');
+      document.getElementById('averageDisplay').innerHTML = infotext;
+    });
+  });
+
+  // Initialize Resizable
+  initResizable();
+}
+
+    function initResizable() {
+      const resizeHandle = document.getElementById('resizeHandle');
+      const myChart = document.getElementById('myChart');
+
+      let startX, startY, startWidth, startHeight;
+
+      resizeHandle.addEventListener('mousedown', (e) => {
+        startX = e.clientX;
+        startY = e.clientY;
+        startWidth = parseInt(document.defaultView.getComputedStyle(myChart).width, 10);
+        startHeight = parseInt(document.defaultView.getComputedStyle(myChart).height, 10);
+
+        function doDrag(e) {
+          myChart.style.width = (startWidth + e.clientX - startX) + 'px';
+          myChart.style.height = (startHeight + e.clientY - startY) + 'px';
+        }
+
+        function stopDrag() {
+          document.removeEventListener('mousemove', doDrag);
+          document.removeEventListener('mouseup', stopDrag);
+        }
+
+        document.addEventListener('mousemove', doDrag);
+        document.addEventListener('mouseup', stopDrag);
+      });
+    }
+
+    window.onload = function () {
+      initResizable();
+    }
+  </script>
+</body>
+
+</html>
